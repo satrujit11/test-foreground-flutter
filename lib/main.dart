@@ -71,6 +71,13 @@ class _ForegroundServicePageState extends State<ForegroundServicePage> {
       if (!await FlutterForegroundTask.isIgnoringBatteryOptimizations) {
         await FlutterForegroundTask.requestIgnoreBatteryOptimization();
       }
+    } else if (Platform.isIOS) {
+      // iOS notification permission
+      final NotificationPermission notificationPermission =
+          await FlutterForegroundTask.checkNotificationPermission();
+      if (notificationPermission != NotificationPermission.granted) {
+        await FlutterForegroundTask.requestNotificationPermission();
+      }
     }
   }
 
@@ -85,13 +92,13 @@ class _ForegroundServicePageState extends State<ForegroundServicePage> {
       ),
       iosNotificationOptions: const IOSNotificationOptions(
         showNotification: true,
-        playSound: false,
+        playSound: true,
       ),
       foregroundTaskOptions: ForegroundTaskOptions(
         eventAction: ForegroundTaskEventAction.repeat(5000),
-        autoRunOnBoot: true,
-        allowWakeLock: true,
-        allowWifiLock: true,
+        autoRunOnBoot: Platform.isAndroid ? true : false,
+        allowWakeLock: Platform.isAndroid ? true : false,
+        allowWifiLock: Platform.isAndroid ? true : false,
       ),
     );
   }

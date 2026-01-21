@@ -45,5 +45,18 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+  <array>
+    <string>fetch</string>
+		<string>background-processing</string>
+		<string>background-app-refresh</string>
+		<string>remote-notification</string>
+	</array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+  <array>
+    <string>com.pravera.flutter_foreground_task.refresh</string>
+		<string>com.example.backgroundTest.foreground_task</string>
+		<string>com.example.backgroundTest.background_refresh</string>
+	</array>
 </dict>
 </plist>
