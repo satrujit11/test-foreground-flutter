@@ -14,12 +14,16 @@ import BackgroundTasks
     BGTaskScheduler.shared.register(
       forTaskWithIdentifier: "com.example.backgroundTest.foreground_task",
       using: nil
-    )
+    ) { task in
+      self.handleForegroundTask(task as! BGAppRefreshTaskRequest)
+    }
     
     BGTaskScheduler.shared.register(
       forTaskWithIdentifier: "com.example.backgroundTest.background_refresh",
       using: nil
-    )
+    ) { task in
+      self.handleBackgroundRefresh(task as! BGAppRefreshTaskRequest)
+    }
     
     // Request notification permissions
     UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
@@ -47,6 +51,57 @@ import BackgroundTasks
       print("Background app refresh scheduled")
     } catch {
       print("Failed to schedule background app refresh: \(error)")
+    }
+  }
+  
+  private func handleForegroundTask(_ task: BGAppRefreshTaskRequest) {
+    print("Foreground task started")
+    
+    task.expirationHandler = {
+      print("Foreground task expired")
+      task.setTaskCompleted(success: false)
+    }
+    
+    // Perform the foreground task work
+    DispatchQueue.global(qos: .background).async {
+      // Add your foreground task logic here
+      // This could communicate with Flutter foreground task plugin
+      print("Executing foreground task work")
+      
+      // Simulate some work
+      Thread.sleep(forTimeInterval: 2)
+      
+      DispatchQueue.main.async {
+        print("Foreground task completed")
+        task.setTaskCompleted(success: true)
+      }
+    }
+  }
+  
+  private func handleBackgroundRefresh(_ task: BGAppRefreshTaskRequest) {
+    print("Background refresh task started")
+    
+    task.expirationHandler = {
+      print("Background refresh task expired")
+      task.setTaskCompleted(success: false)
+    }
+    
+    // Perform the background refresh work
+    DispatchQueue.global(qos: .background).async {
+      // Add your background refresh logic here
+      // This could communicate with Flutter workmanager plugin
+      print("Executing background refresh work")
+      
+      // Simulate some work
+      Thread.sleep(forTimeInterval: 3)
+      
+      DispatchQueue.main.async {
+        print("Background refresh task completed")
+        task.setTaskCompleted(success: true)
+        
+        // Schedule the next background refresh
+        self.scheduleBackgroundAppRefresh()
+      }
     }
   }
 }
